@@ -1,0 +1,66 @@
+------------------------------------------------------------------------------------
+
+리액트 필수개념에 대한 챕터다.
+
+------------------------------------------------------------------------------------
+
+1. 정적 컴포넌트
+- state가 없이 그리기만 하는 프레젠테이션 컴포넌트
+- props로 컴포넌트의 렌더링과 동작을 제어가능
+- props가 5~6개를 넘으면 슬슬 레드사인
+
+------------------------------------------------------------------------------------
+
+렌더링 : props나 state가 변경되면 이를 반영하기 위해 UI를 업데이트
+
+1. 초기렌더링
+2. state / props update시 비교 알고리즘 수행
+3. reconcilation: state/props의 변경에 의해 어떤 html조각이 업데이트 필요한지 결정
+4. 리렌더링: 가상 DOM을 새로운 가상 DOM으로 바꿈
+5. 실제 DOM 업데이트: 가상 DOM에서 변경된 부분을 실제 DOM에 반영
+
+------------------------------------------------------------------------------------
+
+hooks: 관심사분리 + 로직 모듈화
+
+1. useState: 컴포넌트 내부의 state를 정의
+2. useEffect: 부수효과 관리 / dpes변경시 실행
+
+- react strict-mode 사용시 clean-up과 내부가 한번씩 더실행됨?
+  - 앱 내 잠재적인 문제를 알기 위한 도구?
+  - 개발중에만 적용됨 / 배포시는 미포함
+  - 부가적인 검사와 경고만 한다.
+    - 권장하지 않은 deprecated 메소드가 호출될떄 경고
+    - useEffect를 의도적으로 2번 호출하여 제대로 정리를 하지 않았을떄의 에러를 미리 검증하게 해줌
+  
+------------------------------------------------------------------------------------
+
+context
+- state를 props drilling없이 하위트리에 전달하게 해주는 기능
+- 관심사별로 여러개 구성하여 사용
+
+export type ThemeContext = {
+  theme: 'light' | 'dark';
+  toggleTheme: () => void;
+}
+
+export const ThemeContext = React.createContext<ThemeContext>({
+  theme: 'light',
+  toggleTheme: () => {}
+})
+
+export const ThemeProvider = ({children}) => {
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  
+  return <ThemeContext.Provider 
+    value={{ 
+      theme, 
+      toggleTheme: setTheme((prev) => prev === 'light' ? 'dark' : 'light' ) 
+    }}>
+      {children}
+    </ThemeContext.Provider>
+}
+
+const { theme, toggleTheme } = useContext(ThemeContext)
+
+------------------------------------------------------------------------------------

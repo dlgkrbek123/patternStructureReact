@@ -1,0 +1,93 @@
+------------------------------------------------------------------------------------
+
+의존관계역전 (Depedency Inversion Principle)
+- 상위 레벨의 모듈이 하위 모듈에 의존관계를 맺게되면 하위 모듈 변경시 시스템 전반적으로 광범위한 변경이 필요
+
+- 유지보수가능하며 유연하고 확장가능한 소프트웨어를 만들기 위해 필요한 SOLID 원칙중 하나
+- 단단하게 결합된 모듈로 인해 발생하는 문제를 해결
+
+------------------------------------------------------------------------------------
+
+class EmailNotification {
+  send(message: string, type: string) {
+    // console.log
+  }
+}
+
+class Application {
+  private emailNotification: EmailNotification
+
+  constructor(emailNotification: EmailNotification) {
+    this.emailNotification = emailNotification;
+  }
+
+  process() {
+    this.emailNotification.send("message" , "info")
+  }
+}
+
+cost app = new Application(new EmailNotification())
+app.process()
+
+- 2클래스가 강하게 연결되어 있다.
+- NotificationInterface를 추가하고 EmailNotification가 이를 따르게 구현
+
+interfaction Notification {
+  send(message: string; type: string): void;
+}
+
+class EmailNotification implements Notification {
+  send(message: string, type: string) {
+    // console.log
+  }
+}
+
+
+class Application {
+  private notification: Notification
+
+  constructor(notification: Notification) {
+    this.notification = notification;
+  }
+
+  process() {
+    this.notification.send("message" , "info")
+  }
+}
+
+- 이제 알림 종류를 바꾸고 싶으면 interface만 별도로 구현해서 연결하면 됨
+
+------------------------------------------------------------------------------------
+
+const Button = ({ onClick:provided, name, ...rest }: ButtonProps) => {
+  const onClick = (e) => {
+    return provided(e)
+  }
+
+  return <button onClick={onClick} {...rest}>{name}</button>
+}
+
+// 
+
+export interface InteractionMeasurement {
+  measure(name: string | undefined, timestamp?: number): void;
+}
+
+export default createContext<InteractionMeasurement | null>(null);
+
+
+const Button = ({ onClick:provided, name, ...rest }: ButtonProps) => {
+  const measureContext = useContext(InteractionContext)
+
+  const onClick = (e) => {
+    if(measureContext) measureContext.measure(name, e.timeStamp);
+
+    return provided(e)
+  }
+
+  return <button onClick={onClick} {...rest}>{name}</button>
+}
+
+요렇게하면 context로 덮은 부분만 로깅이 가능하지 않을까?
+
+------------------------------------------------------------------------------------
